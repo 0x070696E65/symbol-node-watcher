@@ -6,7 +6,7 @@ import { dirname, join } from 'path';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 const args = process.argv.slice(2);
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = dirname(dirname(__filename));
 const PID_FILE_PATH = join(__dirname, 'process.pid');
 if (args[0] === 'start') {
     startTask();
