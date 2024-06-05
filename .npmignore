@@ -2,3 +2,4 @@ src/
 tsconfig.json
 LICENSE.md
 process.pid
+logfile.log

@@ -42,14 +42,12 @@ npm install symbol-node-watcher -g
 ## 起動
 
 ```sh
-symbol-node-watcher start /path/to/config.json -d
-or
 symbol-node-watcher start /path/to/config.json
 or
 symbol-node-watcher start
 ```
 
-もしライブラリ内の config.json を書き換えた場合はオプションの config.json へのパスは不要です、また`-d` or `--detached` を付けるとバックグラウンドで実行します。
+もしライブラリ内の config.json を書き換えた場合はオプションの config.json へのパスは不要です。
 
 ## 停止
 
