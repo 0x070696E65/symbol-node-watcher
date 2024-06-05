@@ -1,6 +1,6 @@
 import * as fs from 'fs'
 
-interface Config {
+export interface Config {
   yourNode: string
   nodePath: string
   discordWebhookUrl: string
@@ -9,14 +9,12 @@ interface Config {
   differenceHeight: number
 }
 
-const configFilePath = '../config.json'
-
-export function loadConfig(): Config {
+export function loadConfig(configFilePath: string | undefined): Config {
   try {
-    const configData = fs.readFileSync(configFilePath, 'utf-8')
+    const configData = fs.readFileSync(configFilePath ? configFilePath : './config.json', 'utf-8')
     const config: Config = JSON.parse(configData)
-    if (config.nodePath == undefined || config.yourNode == undefined || config.discordWebhookUrl)
-      throw new Error('some config is undefind')
+
+    if (config.nodePath == '' || config.yourNode == '') throw new Error()
     return JSON.parse(configData)
   } catch (error) {
     throw new Error('Error loading config file')

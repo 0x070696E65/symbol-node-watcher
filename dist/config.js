@@ -1,11 +1,10 @@
 import * as fs from 'fs';
-const configFilePath = '../config.json';
-export function loadConfig() {
+export function loadConfig(configFilePath) {
     try {
-        const configData = fs.readFileSync(configFilePath, 'utf-8');
+        const configData = fs.readFileSync(configFilePath ? configFilePath : './config.json', 'utf-8');
         const config = JSON.parse(configData);
-        if (config.nodePath == undefined || config.yourNode == undefined || config.discordWebhookUrl)
-            throw new Error('some config is undefind');
+        if (config.nodePath == '' || config.yourNode == '')
+            throw new Error();
         return JSON.parse(configData);
     }
     catch (error) {
