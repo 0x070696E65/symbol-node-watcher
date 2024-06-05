@@ -1,6 +1,6 @@
 {
   "name": "symbol-node-watcher",
-  "version": "0.1.4",
+  "version": "0.1.7",
   "description": "",
   "main": "dist/index.js",
   "type": "module",
@@ -13,8 +13,8 @@
     "symbol-node-watcher": "./dist/bin/symbol-node-watcher.js"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "toshi",
+  "license": "MIT",
   "devDependencies": {
     "@types/node": "^20.14.1",
     "@types/node-cron": "^3.0.11",

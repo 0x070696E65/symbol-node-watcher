@@ -88,16 +88,23 @@ export default class NodeWatch {
       }
     }
 
-    const yourNodeChainInfoResponce = await fetch(`http://${this.config.yourNode}:3000/chain/info`)
-    if (!yourNodeChainInfoResponce.ok) {
+    let yourNodeChainInfoResponce
+    try {
+      yourNodeChainInfoResponce = await fetch(`http://${this.config.yourNode}:3000/chain/info`)
+    } catch {
       this.sendDiscordMessage(ERROR_MESSAGES.YOUR_NODE_IS_UNABILABLE)
       this.nodeReboot()
+      return
+    }
+    if (yourNodeChainInfoResponce == undefined || !yourNodeChainInfoResponce.ok) {
+      this.sendDiscordMessage(ERROR_MESSAGES.YOUR_NODE_IS_UNABILABLE)
+      this.nodeReboot()
+      return
     }
 
     const yourNodeChainInfo = (await yourNodeChainInfoResponce.json()) as any
     const yourNodeHeight = Number(yourNodeChainInfo.height)
     const yourNodeFinalizedHeight = Number(yourNodeChainInfo.latestFinalizedBlock.height)
-
     if (maxNode.height - this.config.differenceHeight > yourNodeHeight) {
       const errorMessage = `${ERROR_MESSAGES.NODE_HEIGHT}\nあなたのブロック高: ${yourNodeHeight}\n正常ノードのブロック高${maxNode.height}`
       this.sendDiscordMessage(errorMessage)
@@ -111,7 +118,5 @@ export default class NodeWatch {
       this.nodeReboot()
       return
     }
-
-    this.sendDiscordMessage('SUCCESS!!!')
   }
 }

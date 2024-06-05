@@ -72,10 +72,19 @@ export default class NodeWatch {
                 }
             }
         }
-        const yourNodeChainInfoResponce = await fetch(`http://${this.config.yourNode}:3000/chain/info`);
-        if (!yourNodeChainInfoResponce.ok) {
+        let yourNodeChainInfoResponce;
+        try {
+            yourNodeChainInfoResponce = await fetch(`http://${this.config.yourNode}:3000/chain/info`);
+        }
+        catch {
             this.sendDiscordMessage(ERROR_MESSAGES.YOUR_NODE_IS_UNABILABLE);
             this.nodeReboot();
+            return;
+        }
+        if (yourNodeChainInfoResponce == undefined || !yourNodeChainInfoResponce.ok) {
+            this.sendDiscordMessage(ERROR_MESSAGES.YOUR_NODE_IS_UNABILABLE);
+            this.nodeReboot();
+            return;
         }
         const yourNodeChainInfo = (await yourNodeChainInfoResponce.json());
         const yourNodeHeight = Number(yourNodeChainInfo.height);
@@ -92,6 +101,5 @@ export default class NodeWatch {
             this.nodeReboot();
             return;
         }
-        this.sendDiscordMessage('SUCCESS!!!');
     };
 }
