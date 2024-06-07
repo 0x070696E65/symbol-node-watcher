@@ -88,7 +88,6 @@ export default class NodeWatch {
             }
             nodesInfo.push(node)
           } catch (e: any) {
-            this.sendDiscordMessage(`Error fetching chain info for node ${nodeList[i].host}: ${e.message}`)
             console.error(`Error fetching chain info for node ${nodeList[i].host}: ${e.message}`)
           }
         }
