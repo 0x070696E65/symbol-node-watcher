@@ -2,7 +2,6 @@
   "yourNode": "",
   "nodePath": "",
   "discordWebhookUrl": "",
-  "repeatSeconds": 3600,
   "symbolServiceUrl": "https://symbol.services/nodes?filter=suggested&limit=5",
-  "differenceHeight": 5
+  "differenceHeight": 10
 }

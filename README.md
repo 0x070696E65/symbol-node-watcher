@@ -23,7 +23,6 @@ npm install symbol-node-watcher -g
   "yourNode": "examplenode.com",
   "nodePath": "/home/user/symbol-node",
   "discordWebhookUrl": "https://discord.com/api/webhooks/1247840486480****/xwcTXEKBL-NC9fXoByZZbb-s5A8qxLAhmD5ikToCBwz79aX3WBYWEF3k7xX4M******",
-  "repeatSeconds": 3600,
   "symbolServiceUrl": "https://symbol.services/nodes?filter=suggested&limit=5",
   "differenceHeight": 5
 }
@@ -35,7 +34,6 @@ npm install symbol-node-watcher -g
 
   `サーバー設定 -> 連携サービス -> ウェブフック` で新たなウェブフックを作成可能です
 
-- `repeatSeconds` 何秒ごとにノードの稼働を確認するか
 - `symbolServiceUrl` ここから他のノードの情報を取得しています、基本的にはこのままで良い。ここが停止すると使えない。
 - `differenceHeight` 他のノード群の最大ブロックと自分のブロックの差がこれ以上になると異常と判断します
 

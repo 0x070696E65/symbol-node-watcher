@@ -19,8 +19,7 @@ else {
 }
 function startTask() {
     const config = loadConfig(args[1]);
-    const REPEAT_SECONDS = config.repeatSeconds;
-    const cronExpression = `*/${REPEAT_SECONDS} * * * * *`;
+    const cronExpression = `0 0 * * * *`;
     console.log(config);
     const nodeWatch = new NodeWatch(config);
     cron.schedule(cronExpression, () => {
