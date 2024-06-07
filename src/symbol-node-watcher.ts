@@ -18,7 +18,7 @@ if (args[0] === 'start') {
 }
 function startTask() {
   const config = loadConfig(args[1])
-  const cronExpression = `0 0 * * * *`
+  const cronExpression = config.cronExpression
   console.log(config)
   const nodeWatch = new NodeWatch(config)
   cron.schedule(cronExpression, () => {

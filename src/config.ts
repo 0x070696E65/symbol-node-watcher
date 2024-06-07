@@ -4,7 +4,7 @@ export interface Config {
   yourNode: string
   nodePath: string
   discordWebhookUrl: string
-  repeatSeconds: number
+  cronExpression: string
   symbolServiceUrl: string
   differenceHeight: number
 }
