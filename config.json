@@ -1,5 +1,4 @@
 {
-  "yourNode": "",
   "nodePath": "",
   "discordWebhookUrl": "",
   "cronExpression": "0 0 * * * *",

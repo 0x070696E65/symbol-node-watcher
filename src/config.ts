@@ -1,7 +1,6 @@
 import * as fs from 'fs'
 
 export interface Config {
-  yourNode: string
   nodePath: string
   discordWebhookUrl: string
   cronExpression: string
@@ -14,7 +13,7 @@ export function loadConfig(configFilePath: string | undefined): Config {
     const configData = fs.readFileSync(configFilePath ? configFilePath : './config.json', 'utf-8')
     const config: Config = JSON.parse(configData)
 
-    if (config.nodePath == '' || config.yourNode == '') throw new Error()
+    if (config.nodePath == '' || config.nodePath == undefined) throw new Error('can not find node path')
     return JSON.parse(configData)
   } catch (error) {
     throw new Error('Error loading config file')

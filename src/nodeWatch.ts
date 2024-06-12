@@ -103,7 +103,7 @@ export default class NodeWatch {
 
       let yourNodeChainInfoResponce
       try {
-        yourNodeChainInfoResponce = await fetch(`http://${this.config.yourNode}:3000/chain/info`)
+        yourNodeChainInfoResponce = await fetch(`http://localhost:3000/chain/info`)
       } catch {
         this.sendDiscordMessage(ERROR_MESSAGES.YOUR_NODE_IS_UNABILABLE)
         this.nodeReboot()
