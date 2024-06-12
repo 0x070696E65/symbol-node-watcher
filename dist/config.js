@@ -3,8 +3,8 @@ export function loadConfig(configFilePath) {
     try {
         const configData = fs.readFileSync(configFilePath ? configFilePath : './config.json', 'utf-8');
         const config = JSON.parse(configData);
-        if (config.nodePath == '' || config.yourNode == '')
-            throw new Error();
+        if (config.nodePath == '' || config.nodePath == undefined)
+            throw new Error('can not find node path');
         return JSON.parse(configData);
     }
     catch (error) {
