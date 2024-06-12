@@ -28,19 +28,22 @@ export default class NodeWatch {
             }),
         });
     };
+    sendMessage = async (content) => {
+        await this.sendDiscordMessage(content);
+    };
     nodeReboot = () => {
         const timeoutMilliseconds = 120000;
         const command = `cd ${this.config.nodePath} && ${this.config.stopCommand} && ${this.config.runCommand}`;
         const childProcess = exec(command, (error, stdout, stderr) => {
             if (error) {
-                this.sendDiscordMessage(`ノード再起動エラー: ${error}`);
+                this.sendMessage(`ノード再起動エラー: ${error}`);
                 return;
             }
-            this.sendDiscordMessage('正常に再起動が完了しました。確認してください。');
+            this.sendMessage('正常に再起動が完了しました。確認してください。');
         });
         const timeout = setTimeout(() => {
             childProcess.kill();
-            this.sendDiscordMessage('ノード再起動がタイムアウトしました。');
+            this.sendMessage('ノード再起動がタイムアウトしました。');
         }, timeoutMilliseconds);
         childProcess.on('exit', () => {
             clearTimeout(timeout);
@@ -60,7 +63,7 @@ export default class NodeWatch {
                 nodeList = symbolServiceResponse;
             }
             catch (e) {
-                this.sendDiscordMessage(`${ERROR_MESSAGES.SYMBOL_SERVICE_UNABILABLE}: ${e.message}`);
+                this.sendMessage(`${ERROR_MESSAGES.SYMBOL_SERVICE_UNABILABLE}: ${e.message}`);
                 console.error(e.message);
             }
             if (Array.isArray(nodeList)) {
@@ -84,12 +87,12 @@ export default class NodeWatch {
                 yourNodeChainInfoResponce = await fetch(`http://localhost:3000/chain/info`);
             }
             catch {
-                this.sendDiscordMessage(ERROR_MESSAGES.YOUR_NODE_IS_UNABILABLE);
+                this.sendMessage(ERROR_MESSAGES.YOUR_NODE_IS_UNABILABLE);
                 this.nodeReboot();
                 return;
             }
             if (yourNodeChainInfoResponce == undefined || !yourNodeChainInfoResponce.ok) {
-                this.sendDiscordMessage(ERROR_MESSAGES.YOUR_NODE_IS_UNABILABLE);
+                this.sendMessage(ERROR_MESSAGES.YOUR_NODE_IS_UNABILABLE);
                 this.nodeReboot();
                 return;
             }
@@ -98,19 +101,19 @@ export default class NodeWatch {
             const yourNodeFinalizedHeight = Number(yourNodeChainInfo.latestFinalizedBlock.height);
             if (maxNode.height - this.config.differenceHeight > yourNodeHeight) {
                 const errorMessage = `${ERROR_MESSAGES.NODE_HEIGHT}\nあなたのブロック高: ${yourNodeHeight}\n正常ノードのブロック高${maxNode.height}`;
-                this.sendDiscordMessage(errorMessage);
+                this.sendMessage(errorMessage);
                 this.nodeReboot();
                 return;
             }
             if (maxNode.finalizedHeight - this.config.differenceHeight > yourNodeFinalizedHeight) {
                 const errorMessage = `${ERROR_MESSAGES.NODE_FINALIZED_HEIGHT}\nあなたのファイナライズブロック高: ${yourNodeFinalizedHeight}\n正常ノードのファイナライズブロック高${maxNode.finalizedHeight}`;
-                this.sendDiscordMessage(errorMessage);
+                this.sendMessage(errorMessage);
                 this.nodeReboot();
                 return;
             }
         }
         catch (e) {
-            this.sendDiscordMessage(e.message);
+            this.sendMessage(e.message);
             console.error(e.message);
         }
     };
