@@ -19,6 +19,7 @@ let nodesInfo: NodeInfo[] = []
 
 export default class NodeWatch {
   config: Config
+
   constructor(config: Config) {
     this.config = config
   }
@@ -60,42 +61,38 @@ export default class NodeWatch {
     })
   }
 
+  fetchJSON = async (url: string) => {
+    const response = await fetch(url)
+    if (!response.ok) throw new Error(`Failed to fetch ${url}`)
+    return response.json()
+  }
+
   start = async () => {
     try {
       let nodeList: unknown
       try {
-        const symbolServiceResponce = await fetch(this.config.symbolServiceUrl)
-        if (!symbolServiceResponce.ok || symbolServiceResponce == undefined)
-          this.sendDiscordMessage(ERROR_MESSAGES.SYMBOL_SERVICE_UNABILABLE)
-        nodeList = await symbolServiceResponce.json()
+        const symbolServiceResponse = await this.fetchJSON(this.config.symbolServiceUrl)
+        nodeList = symbolServiceResponse
       } catch (e: any) {
         this.sendDiscordMessage(`${ERROR_MESSAGES.SYMBOL_SERVICE_UNABILABLE}: ${e.message}`)
         console.error(e.message)
       }
 
       if (Array.isArray(nodeList)) {
-        for (let i = 0; i < nodeList.length; i++) {
+        for (const node of nodeList) {
           try {
-            const chainInfo = (await (await fetch(`http://${nodeList[i].host}:3000/chain/info`)).json()) as any
-            const node = {
-              name: nodeList[i].host,
+            const chainInfo = (await this.fetchJSON(`http://${node.host}:3000/chain/info`)) as any
+            nodesInfo.push({
+              name: node.host,
               height: Number(chainInfo.height),
               finalizedHeight: Number(chainInfo.latestFinalizedBlock.height),
-            }
-            nodesInfo.push(node)
+            })
           } catch (e: any) {
-            console.error(`Error fetching chain info for node ${nodeList[i].host}: ${e.message}`)
+            console.error(`Error fetching chain info for node ${node.host}: ${e.message}`)
           }
         }
       }
-      let maxNode: NodeInfo = nodesInfo[0]
-      if (nodesInfo.length > 0) {
-        for (let i = 1; i < nodesInfo.length; i++) {
-          if (nodesInfo[i].height > maxNode.height) {
-            maxNode = nodesInfo[i]
-          }
-        }
-      }
+      const maxNode = nodesInfo.reduce((max, node) => (node.height > max.height ? node : max), nodesInfo[0])
 
       let yourNodeChainInfoResponce
       try {
@@ -105,6 +102,7 @@ export default class NodeWatch {
         this.nodeReboot()
         return
       }
+
       if (yourNodeChainInfoResponce == undefined || !yourNodeChainInfoResponce.ok) {
         this.sendDiscordMessage(ERROR_MESSAGES.YOUR_NODE_IS_UNABILABLE)
         this.nodeReboot()
@@ -114,6 +112,7 @@ export default class NodeWatch {
       const yourNodeChainInfo = (await yourNodeChainInfoResponce.json()) as any
       const yourNodeHeight = Number(yourNodeChainInfo.height)
       const yourNodeFinalizedHeight = Number(yourNodeChainInfo.latestFinalizedBlock.height)
+
       if (maxNode.height - this.config.differenceHeight > yourNodeHeight) {
         const errorMessage = `${ERROR_MESSAGES.NODE_HEIGHT}\nあなたのブロック高: ${yourNodeHeight}\n正常ノードのブロック高${maxNode.height}`
         this.sendDiscordMessage(errorMessage)
