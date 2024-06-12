@@ -6,6 +6,8 @@ export interface Config {
   cronExpression: string
   symbolServiceUrl: string
   differenceHeight: number
+  stopCommand: string
+  runCommand: string
 }
 
 export function loadConfig(configFilePath: string | undefined): Config {

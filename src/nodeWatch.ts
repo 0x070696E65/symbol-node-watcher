@@ -9,9 +9,6 @@ const ERROR_MESSAGES = {
   NODE_FINALIZED_HEIGHT: 'ファイナライズ高が異常です',
 }
 
-const NODE_STOP = 'symbol-bootstrap stop'
-const NODE_RUN = 'symbol-bootstrap run -d'
-
 type NodeInfo = {
   name: string
   height: number
@@ -44,8 +41,7 @@ export default class NodeWatch {
 
   nodeReboot = () => {
     const timeoutMilliseconds = 120000
-
-    const command = `cd ${this.config.nodePath} && ${NODE_STOP} && ${NODE_RUN}`
+    const command = `cd ${this.config.nodePath} && ${this.config.stopCommand} && ${this.config.runCommand}`
     const childProcess = exec(command, (error, stdout, stderr) => {
       if (error) {
         this.sendDiscordMessage(`ノード再起動エラー: ${error}`)

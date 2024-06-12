@@ -3,5 +3,7 @@
   "discordWebhookUrl": "",
   "cronExpression": "0 0 * * * *",
   "symbolServiceUrl": "https://symbol.services/nodes?filter=suggested&limit=5",
-  "differenceHeight": 5
+  "differenceHeight": 5,
+  "stopCommand": "symbol-bootstrap stop",
+  "runCommand": "symbol-bootstrap run -d"
 }
