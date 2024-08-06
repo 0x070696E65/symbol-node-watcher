@@ -146,7 +146,7 @@ export default class NodeWatch {
         return
       }
 
-      if (maxNode.finalizedHeight - this.config.differenceHeight > yourNodeFinalizedHeight) {
+      if (maxNode.finalizedHeight - (this.config.differenceHeight * 3) > yourNodeFinalizedHeight) {
         const errorMessage = `${ERROR_MESSAGES.NODE_FINALIZED_HEIGHT}\nあなたのファイナライズブロック高: ${yourNodeFinalizedHeight}\n正常ノードのファイナライズブロック高${maxNode.finalizedHeight}`
         this.sendMessage(errorMessage)
         this.nodeReboot()
