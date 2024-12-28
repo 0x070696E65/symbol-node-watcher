@@ -45,7 +45,6 @@ export default class NodeWatch {
   }
 
   nodeReboot = () => {
-    const timeoutMilliseconds = 120000
     const command = `cd ${this.config.nodePath} && ${this.config.stopCommand} && ${this.config.runCommand}`
     const childProcess = exec(command, (error, stdout, stderr) => {
       if (error) {
@@ -58,7 +57,7 @@ export default class NodeWatch {
     const timeout = setTimeout(() => {
       childProcess.kill()
       this.sendMessage('ノード再起動がタイムアウトしました。')
-    }, timeoutMilliseconds)
+    }, this.config.timeoutMilliseconds)
 
     childProcess.on('exit', () => {
       clearTimeout(timeout)

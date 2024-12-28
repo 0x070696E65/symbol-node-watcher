@@ -8,6 +8,7 @@ export interface Config {
   differenceHeight: number
   stopCommand: string
   runCommand: string
+  timeoutMilliseconds: number
 }
 
 export function loadConfig(configFilePath: string | undefined): Config {
