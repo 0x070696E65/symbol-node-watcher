@@ -9,6 +9,14 @@ const ERROR_MESSAGES = {
   NODE_FINALIZED_HEIGHT: 'ファイナライズ高が異常です',
 }
 
+const MAX_RETRIES = 5;
+const RETRY_DELAY_MS = 2000;
+
+function getFormattedTime(): string {
+  const now = new Date();
+  return now.toISOString();
+}
+
 type NodeInfo = {
   name: string
   height: number
@@ -25,20 +33,34 @@ export default class NodeWatch {
   }
 
   sendDiscordMessage = async (content: string) => {
-    if (!this.config.discordWebhookUrl) return
-    await fetch(this.config.discordWebhookUrl, {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        username: 'symbol node wather BOT',
-        content,
-        allowed_mentions: {},
-      }),
-    })
-  }
+    if (!this.config.discordWebhookUrl) return;
+  
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        await fetch(this.config.discordWebhookUrl, {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            username: 'symbol node wather BOT',
+            content,
+            allowed_mentions: {},
+          }),
+        });
+        return;
+      } catch (e: any) {
+        console.error(`${getFormattedTime()} - Attempt ${attempt} failed: ${e.message}`);
+  
+        if (attempt < MAX_RETRIES) {
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
+        } else {
+          console.error(`${getFormattedTime()} - All retry attempts failed`);
+        }
+      }
+    }
+  };
 
   sendMessage = async (content: string) => {
     await this.sendDiscordMessage(content)
@@ -78,7 +100,7 @@ export default class NodeWatch {
         nodeList = symbolServiceResponse
       } catch (e: any) {
         this.sendMessage(`${ERROR_MESSAGES.SYMBOL_SERVICE_UNABILABLE}: ${e.message}`)
-        console.error(e.message)
+        console.error(`${getFormattedTime()} - ${e.message}`)
       }
 
       if (Array.isArray(nodeList)) {
@@ -91,7 +113,7 @@ export default class NodeWatch {
               finalizedHeight: Number(chainInfo.latestFinalizedBlock.height),
             })
           } catch (e: any) {
-            console.error(`Error fetching chain info for node ${node.host}: ${e.message}`)
+            console.error(`${getFormattedTime()} - Error fetching chain info for node ${node.host}: ${e.message}`)
           }
         }
       }
@@ -123,7 +145,7 @@ export default class NodeWatch {
         return
       }
 
-      if (maxNode.finalizedHeight - this.config.differenceHeight > yourNodeFinalizedHeight) {
+      if (maxNode.finalizedHeight - (this.config.differenceHeight * 20) > yourNodeFinalizedHeight) {
         const errorMessage = `${ERROR_MESSAGES.NODE_FINALIZED_HEIGHT}\nあなたのファイナライズブロック高: ${yourNodeFinalizedHeight}\n正常ノードのファイナライズブロック高${maxNode.finalizedHeight}`
         this.sendMessage(errorMessage)
         this.nodeReboot()
@@ -131,7 +153,7 @@ export default class NodeWatch {
       }
     } catch (e: any) {
       this.sendMessage(e.message)
-      console.error(e.message)
+      console.error(`${getFormattedTime()} - ${e.message}`)
     }
   }
 }
