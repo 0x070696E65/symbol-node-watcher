@@ -1,6 +1,7 @@
 import * as fs from 'fs'
 
 export interface Config {
+  nodeDomain: string
   nodePath: string
   discordWebhookUrl: string
   cronExpression: string

@@ -1,10 +1,11 @@
 {
+  "nodeDomain": "test.com",
   "nodePath": "",
   "discordWebhookUrl": "",
-  "cronExpression": "0 0 * * * *",
+  "cronExpression": "0 */20 * * * *",
   "symbolServiceUrl": "https://symbol.services/nodes?filter=suggested&limit=5",
   "differenceHeight": 5,
-  "stopCommand": "symbol-bootstrap stop",
-  "runCommand": "symbol-bootstrap run -d",
+  "stopCommand": "docker-compose down",
+  "runCommand": "docker-compose up -d",
   "timeoutMilliseconds": 300000
 }

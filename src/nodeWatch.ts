@@ -9,12 +9,12 @@ const ERROR_MESSAGES = {
   NODE_FINALIZED_HEIGHT: 'ファイナライズ高が異常です',
 }
 
-const MAX_RETRIES = 5;
-const RETRY_DELAY_MS = 2000;
+const MAX_RETRIES = 5
+const RETRY_DELAY_MS = 2000
 
 function getFormattedTime(): string {
-  const now = new Date();
-  return now.toISOString();
+  const now = new Date()
+  return now.toISOString()
 }
 
 type NodeInfo = {
@@ -33,8 +33,8 @@ export default class NodeWatch {
   }
 
   sendDiscordMessage = async (content: string) => {
-    if (!this.config.discordWebhookUrl) return;
-  
+    if (!this.config.discordWebhookUrl) return
+
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
       try {
         await fetch(this.config.discordWebhookUrl, {
@@ -48,19 +48,19 @@ export default class NodeWatch {
             content,
             allowed_mentions: {},
           }),
-        });
-        return;
+        })
+        return
       } catch (e: any) {
-        console.error(`${getFormattedTime()} - Attempt ${attempt} failed: ${e.message}`);
-  
+        console.error(`${getFormattedTime()} - Attempt ${attempt} failed: ${e.message}`)
+
         if (attempt < MAX_RETRIES) {
-          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
+          await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS))
         } else {
-          console.error(`${getFormattedTime()} - All retry attempts failed`);
+          console.error(`${getFormattedTime()} - All retry attempts failed`)
         }
       }
     }
-  };
+  }
 
   sendMessage = async (content: string) => {
     await this.sendDiscordMessage(content)
@@ -121,7 +121,7 @@ export default class NodeWatch {
 
       let yourNodeChainInfoResponce
       try {
-        yourNodeChainInfoResponce = await fetch(`http://localhost:3000/chain/info`)
+        yourNodeChainInfoResponce = await fetch(`http://${this.config.nodeDomain}:3000/chain/info`)
       } catch {
         this.sendMessage(ERROR_MESSAGES.YOUR_NODE_IS_UNABILABLE)
         this.nodeReboot()
@@ -145,7 +145,7 @@ export default class NodeWatch {
         return
       }
 
-      if (maxNode.finalizedHeight - (this.config.differenceHeight * 20) > yourNodeFinalizedHeight) {
+      if (maxNode.finalizedHeight - this.config.differenceHeight * 20 > yourNodeFinalizedHeight) {
         const errorMessage = `${ERROR_MESSAGES.NODE_FINALIZED_HEIGHT}\nあなたのファイナライズブロック高: ${yourNodeFinalizedHeight}\n正常ノードのファイナライズブロック高${maxNode.finalizedHeight}`
         this.sendMessage(errorMessage)
         this.nodeReboot()

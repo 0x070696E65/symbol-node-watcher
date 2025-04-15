@@ -6,6 +6,12 @@ const ERROR_MESSAGES = {
     NODE_HEIGHT: 'ブロック高が異常です',
     NODE_FINALIZED_HEIGHT: 'ファイナライズ高が異常です',
 };
+const MAX_RETRIES = 5;
+const RETRY_DELAY_MS = 2000;
+function getFormattedTime() {
+    const now = new Date();
+    return now.toISOString();
+}
 let nodesInfo = [];
 export default class NodeWatch {
     config;
@@ -15,24 +21,37 @@ export default class NodeWatch {
     sendDiscordMessage = async (content) => {
         if (!this.config.discordWebhookUrl)
             return;
-        await fetch(this.config.discordWebhookUrl, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                username: 'symbol node wather BOT',
-                content,
-                allowed_mentions: {},
-            }),
-        });
+        for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+            try {
+                await fetch(this.config.discordWebhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: 'symbol node wather BOT',
+                        content,
+                        allowed_mentions: {},
+                    }),
+                });
+                return;
+            }
+            catch (e) {
+                console.error(`${getFormattedTime()} - Attempt ${attempt} failed: ${e.message}`);
+                if (attempt < MAX_RETRIES) {
+                    await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
+                }
+                else {
+                    console.error(`${getFormattedTime()} - All retry attempts failed`);
+                }
+            }
+        }
     };
     sendMessage = async (content) => {
         await this.sendDiscordMessage(content);
     };
     nodeReboot = () => {
-        const timeoutMilliseconds = 120000;
         const command = `cd ${this.config.nodePath} && ${this.config.stopCommand} && ${this.config.runCommand}`;
         const childProcess = exec(command, (error, stdout, stderr) => {
             if (error) {
@@ -44,7 +63,7 @@ export default class NodeWatch {
         const timeout = setTimeout(() => {
             childProcess.kill();
             this.sendMessage('ノード再起動がタイムアウトしました。');
-        }, timeoutMilliseconds);
+        }, this.config.timeoutMilliseconds);
         childProcess.on('exit', () => {
             clearTimeout(timeout);
         });
@@ -64,7 +83,7 @@ export default class NodeWatch {
             }
             catch (e) {
                 this.sendMessage(`${ERROR_MESSAGES.SYMBOL_SERVICE_UNABILABLE}: ${e.message}`);
-                console.error(e.message);
+                console.error(`${getFormattedTime()} - ${e.message}`);
             }
             if (Array.isArray(nodeList)) {
                 for (const node of nodeList) {
@@ -77,14 +96,14 @@ export default class NodeWatch {
                         });
                     }
                     catch (e) {
-                        console.error(`Error fetching chain info for node ${node.host}: ${e.message}`);
+                        console.error(`${getFormattedTime()} - Error fetching chain info for node ${node.host}: ${e.message}`);
                     }
                 }
             }
             const maxNode = nodesInfo.reduce((max, node) => (node.height > max.height ? node : max), nodesInfo[0]);
             let yourNodeChainInfoResponce;
             try {
-                yourNodeChainInfoResponce = await fetch(`http://localhost:3000/chain/info`);
+                yourNodeChainInfoResponce = await fetch(`http://${this.config.nodeDomain}:3000/chain/info`);
             }
             catch {
                 this.sendMessage(ERROR_MESSAGES.YOUR_NODE_IS_UNABILABLE);
@@ -105,7 +124,7 @@ export default class NodeWatch {
                 this.nodeReboot();
                 return;
             }
-            if (maxNode.finalizedHeight - this.config.differenceHeight > yourNodeFinalizedHeight) {
+            if (maxNode.finalizedHeight - this.config.differenceHeight * 20 > yourNodeFinalizedHeight) {
                 const errorMessage = `${ERROR_MESSAGES.NODE_FINALIZED_HEIGHT}\nあなたのファイナライズブロック高: ${yourNodeFinalizedHeight}\n正常ノードのファイナライズブロック高${maxNode.finalizedHeight}`;
                 this.sendMessage(errorMessage);
                 this.nodeReboot();
@@ -114,7 +133,7 @@ export default class NodeWatch {
         }
         catch (e) {
             this.sendMessage(e.message);
-            console.error(e.message);
+            console.error(`${getFormattedTime()} - ${e.message}`);
         }
     };
 }
